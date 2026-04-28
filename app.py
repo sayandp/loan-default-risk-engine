@@ -3,7 +3,7 @@ import joblib
 import pandas as pd
 
 # =========================
-# INLINE CSS (NO FILE NEEDED)
+# INLINE CSS
 # =========================
 st.markdown("""
 <style>
@@ -75,13 +75,13 @@ st.subheader("📊 Applicant Information")
 col1, col2 = st.columns(2)
 
 with col1:
-    income = st.number_input("Annual Income", min_value=0, value=100000)
+    income = st.number_input("Annual Income", min_value=1000, value=100000)
     credit = st.number_input("Credit Amount", min_value=0, value=500000)
     goods_price = st.number_input("Goods Price", min_value=0, value=450000)
 
 with col2:
     annuity = st.number_input("Loan Annuity", min_value=0, value=20000)
-    employment_years = st.number_input("Years Employed", min_value=0, value=5)
+    employment_years = st.number_input("Years Employed", min_value=1, value=5)
     age_years = st.number_input("Age (years)", min_value=18, value=30)
 
 # =========================
@@ -103,7 +103,6 @@ def create_input():
         "DAYS_BIRTH": age_days
     }])
 
-    # match model features
     expected = model.feature_names_in_
 
     for col in expected:
@@ -117,8 +116,12 @@ def create_input():
 # =========================
 if st.button("🔍 Predict Risk"):
 
-    input_data = create_input()
+    # Extra validation safety
+    if income <= 0 or employment_years <= 0:
+        st.error("Income and Employment must be greater than 0")
+        st.stop()
 
+    input_data = create_input()
     prob = model.predict_proba(input_data)[:, 1][0]
 
     st.markdown("---")
@@ -126,11 +129,12 @@ if st.button("🔍 Predict Risk"):
     # Risk display
     st.subheader("📈 Risk Score")
     st.progress(float(prob))
-
     st.write(f"**Probability of Default:** {prob:.2%}")
 
-    # Decision
-    if prob > 0.55:
+    # =========================
+    # FINAL THRESHOLD = 0.6
+    # =========================
+    if prob > 0.6:
         st.markdown(
             """
             <div class="error-box">
@@ -155,4 +159,4 @@ if st.button("🔍 Predict Risk"):
 # FOOTER
 # =========================
 st.markdown("---")
-st.caption("Model: XGBoost | Features: Behavioral + Financial | Explainable via SHAP 🚀")
+st.caption("⚠️ Prediction based on limited input features (demo version)")
