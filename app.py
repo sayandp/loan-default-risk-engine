@@ -130,7 +130,7 @@ if st.button("🔍 Predict Risk"):
     st.write(f"**Probability of Default:** {prob:.2%}")
 
     # Decision
-    if prob > 0.6:
+    if prob > 0.55:
         st.markdown(
             """
             <div class="error-box">
